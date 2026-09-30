@@ -1,0 +1,33 @@
+# Global Estates — Deployment
+
+## Local
+    npm install
+    cp .env.example .env        # set DATABASE_URL (+ Stripe keys if available)
+    npm start                   # schema auto-creates; seeds demo data when DB is empty
+    open http://localhost:3000
+
+## Deploy (Render example — works the same on Railway/Fly)
+1. Push repo to GitHub → New → Web Service → connect repo.
+2. Create a PostgreSQL instance → DATABASE_URL is injected automatically.
+3. Env vars: JWT_SECRET, APP_URL=https://your-domain.onrender.com,
+   STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, PLATFORM_FEE_PERCENT=5, CURRENCY=kes.
+4. Build: `npm install` · Start: `npm start`. Tables + seed data are created on first boot.
+
+## Stripe
+- Use test-mode keys (sk_test_…). Test card: 4242 4242 4242 4242.
+- Add webhook endpoint https://YOUR-DOMAIN/api/stripe/webhook with events:
+  checkout.session.completed · checkout.session.expired · checkout.session.async_payment_failed
+- Copy the signing secret into STRIPE_WEBHOOK_SECRET and redeploy.
+- Without STRIPE_SECRET_KEY the site still runs; checkout returns an explicit
+  "Payment could not be started" error (no fake successes anywhere).
+
+## Smoke test after deploy
+    curl https://DOMAIN/api/health
+    curl "https://DOMAIN/api/properties?location=Kutus&category=Rent"
+    curl -X POST https://DOMAIN/api/auth/login -H 'Content-Type: application/json' \
+         -d '{"email":"demo@global-estates.app","password":"demo1234"}'
+
+Then in the browser: hero search → results page · View All · Explore Stays ·
+category nav · country pills · card → details · favorite · contact host ·
+sign in (demo creds) · list property → appears immediately · dashboard stats ·
+edit/delete · Book Now → Stripe test checkout → confirmation page · plan upgrade.
