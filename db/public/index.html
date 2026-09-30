@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#070b0a">
+<meta name="description" content="Global Estates — rent homes, book vacation stays, find outings and buy land around the world.">
+<title>Global Estates — Find Your Place in the World</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2310b981'/%3E%3Ctext x='16' y='22' font-size='16' font-family='Georgia' font-weight='bold' text-anchor='middle' fill='%23071310'%3EGE%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+<a class="skip-link" href="#app">Skip to content</a>
+
+<header class="site-header" id="siteHeader">
+  <div class="container header-inner">
+    <a class="brand" href="#/" aria-label="Global Estates home">
+      <span class="brand-mark" aria-hidden="true">GE</span>
+      <span class="brand-text">Global&nbsp;Estates</span>
+    </a>
+    <nav class="main-nav" id="mainNav" aria-label="Main navigation">
+      <a href="#/">Home</a>
+      <a href="#/browse?category=Rent">Rent</a>
+      <a href="#/browse?category=Vacation">Vacation</a>
+      <a href="#/browse?category=Outings">Outings</a>
+      <a href="#/browse?category=Land">Land</a>
+      <a href="#/" data-action="list-property" class="nav-cta">List Your Property</a>
+    </nav>
+    <div class="header-actions">
+      <a href="#/saved" class="icon-link" aria-label="Saved properties" title="Saved properties">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 1 0-7.8 7.8l1 1L12 21.2l7.8-7.8 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>
+      </a>
+      <div id="authArea"></div>
+      <button class="burger" id="burgerBtn" aria-label="Open menu" aria-expanded="false" aria-controls="mainNav">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main id="app" tabindex="-1"></main>
+
+<footer class="site-footer">
+  <div class="container footer-grid">
+    <div>
+      <a class="brand" href="#/"><span class="brand-mark">GE</span><span class="brand-text">Global Estates</span></a>
+      <p class="muted small">Homes, vacation stays, outings and land — worldwide. Prices shown in KSh.</p>
+    </div>
+    <div>
+      <h4>Explore</h4>
+      <a href="#/browse?category=Rent">Rentals</a>
+      <a href="#/browse?category=Vacation">Vacation stays</a>
+      <a href="#/browse?category=Outings">Outings</a>
+      <a href="#/browse?category=Land">Land for sale</a>
+      <a href="#/saved">Saved properties</a>
+    </div>
+    <div>
+      <h4>Owners</h4>
+      <a href="#/" data-action="list-property">List your property</a>
+      <a href="#/dashboard">Owner dashboard</a>
+      <a href="#/" data-action="plans">Listing plans</a>
+    </div>
+    <div>
+      <h4>Support</h4>
+      <p class="muted small">Bookings are confirmed only after payment is verified. Land purchases use an inquiry flow — no online land transfers.</p>
+    </div>
+  </div>
+  <div class="container footer-bottom"><span>© 2026 Global Estates. All rights reserved.</span></div>
+</footer>
+
+<div id="modalRoot"></div>
+<div id="toastRoot" aria-live="polite"></div>
+<script src="/app.js"></script>
+</body>
+</html>
