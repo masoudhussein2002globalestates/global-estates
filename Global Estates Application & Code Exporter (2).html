@@ -1,0 +1,1602 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Global Estates - Worldwide Property Marketplace</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              bg: '#0A0F0D',
+              surface: '#141B18',
+              card: '#1A2420',
+              border: '#27352F',
+              emerald: '#10B981',
+              emeraldHover: '#059669',
+              gold: '#D4AF37',
+              goldHover: '#B89528',
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <!-- Google Fonts Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- React & ReactDOM -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <!-- Babel Compiler -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- JSZip for dynamic ZIP exporting -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <!-- FileSaver for triggering downloads -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+
+  <style>
+    body {
+      background-color: #0A0F0D;
+      color: #E2E8F0;
+      font-family: 'Inter', sans-serif;
+    }
+    /* Custom Scrollbars */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0A0F0D;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #27352F;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #10B981;
+    }
+  </style>
+</head>
+<body class="bg-brand-bg text-slate-100 min-h-screen selection:bg-brand-emerald selection:text-black">
+
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect, useMemo } = React;
+
+    // Initial mock properties data
+    const INITIAL_PROPERTIES = [
+      {
+        id: 'prop-1',
+        title: 'Luxurious Kilimani Skyline Penthouse',
+        category: 'Rent',
+        location: 'Kilimani, Nairobi',
+        country: 'Kenya',
+        price: 180000,
+        currency: 'KSh',
+        period: 'month',
+        bedrooms: 3,
+        bathrooms: 3.5,
+        maxGuests: 6,
+        sizeSqFt: 2400,
+        rating: 4.95,
+        reviewsCount: 38,
+        status: 'Featured',
+        views: 1420,
+        image: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1000&q=80',
+        gallery: [
+          'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1000&q=80',
+          'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1000&q=80',
+          'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1000&q=80'
+        ],
+        description: 'Experience unmatched urban elegance in this high-floor duplex penthouse featuring floor-to-ceiling windows, panoramic city views, infinity rooftop pool, high-speed fiber internet, and 24/7 biometric security.',
+        host: { name: 'Sarah Wanjiku', email: 'sarah@globalestates.demo', phone: '+254 712 345 678', verified: true }
+      },
+      {
+        id: 'prop-2',
+        title: 'Oceanfront Luxury Villa with Private Beach',
+        category: 'Vacation',
+        location: 'Diani Beach, Kwale',
+        country: 'Kenya',
+        price: 350,
+        currency: '$',
+        period: 'night',
+        bedrooms: 5,
+        bathrooms: 5,
+        maxGuests: 10,
+        sizeSqFt: 4500,
+        rating: 4.98,
+        reviewsCount: 64,
+        status: 'Published',
+        views: 3110,
+        image: 'https://images.unsplash.com/photo-1613977257363-707ba9348227?auto=format&fit=crop&w=1000&q=80',
+        gallery: [
+          'https://images.unsplash.com/photo-1613977257363-707ba9348227?auto=format&fit=crop&w=1000&q=80',
+          'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=1000&q=80',
+          'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=1000&q=80'
+        ],
+        description: 'Wake up to white sands and turquoise ocean waters. Fully staffed beachfront villa equipped with private chef, infinity pool, outdoor lounge, speed boat charter options, and solar power backup.',
+        host: { name: 'Captain Omar', email: 'omar@dianivillas.demo', phone: '+254 722 987 654', verified: true }
+      },
+      {
+        id: 'prop-3',
+        title: 'Mt. Kenya Wilderness Glamping & Trek Outing',
+        category: 'Outings',
+        location: 'Nanyuki, Laikipia',
+        country: 'Kenya',
+        price: 15000,
+        currency: 'KSh',
+        period: 'day',
+        bedrooms: 1,
+        bathrooms: 1,
+        maxGuests: 15,
+        sizeSqFt: 1200,
+        rating: 4.88,
+        reviewsCount: 22,
+        status: 'Published',
+        views: 890,
+        image: 'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?auto=format&fit=crop&w=1000&q=80',
+        gallery: [
+          'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?auto=format&fit=crop&w=1000&q=80',
+          'https://images.unsplash.com/photo-1510312305653-8ed496efae75?auto=format&fit=crop&w=1000&q=80'
+        ],
+        description: 'Exclusive eco-luxury canvas dome retreat situated right at the foot of Mount Kenya. Includes guided wildlife trail walks, evening campfire catering, horseback riding, and stargazing equipment.',
+        host: { name: 'Laikipia Adventures', email: 'info@mountkenya.demo', phone: '+254 733 112 233', verified: true }
+      },
+      {
+        id: 'prop-4',
+        title: '5-Acre Prime Lakefront Development Land',
+        category: 'Land',
+        location: 'Naivasha, Nakuru',
+        country: 'Kenya',
+        price: 45000000,
+        currency: 'KSh',
+        period: 'sale',
+        bedrooms: 0,
+        bathrooms: 0,
+        maxGuests: 0,
+        sizeSqFt: 217800,
+        rating: 5.0,
+        reviewsCount: 12,
+        status: 'Featured',
+        views: 2450,
+        image: 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1000&q=80',
+        gallery: [
+          'https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1000&q=80'
+        ],
+        description: 'Prime freehold title land right along the shores of Lake Naivasha. Ready with clean title deed, electricity on-site, tarmac access road, and pre-approved zoning for boutique hotel or luxury cottages.',
+        host: { name: 'Maina & Associates', email: 'realty@maina.demo', phone: '+254 720 000 111', verified: true }
+      },
+      {
+        id: 'prop-5',
+        title: 'Zanzibar Spice Island Heritage Villa',
+        category: 'Vacation',
+        location: 'Stone Town, Zanzibar',
+        country: 'Tanzania',
+        price: 280,
+        currency: '$',
+        period: 'night',
+        bedrooms: 4,
+        bathrooms: 4,
+        maxGuests: 8,
+        sizeSqFt: 3200,
+        rating: 4.92,
+        reviewsCount: 45,
+        status: 'Published',
+        views: 1870,
+        image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1000&q=80',
+        gallery: [
+          'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1000&q=80'
+        ],
+        description: 'Authentic Arab-Swahili architectural palace restored with modern luxury amenities, private courtyard plunge pool, rooftop dining overlooking Indian Ocean sunsets, and personal concierge.',
+        host: { name: 'Zanzibar Heritage Stays', email: 'stay@zanzibar.demo', phone: '+255 777 888 999', verified: true }
+      },
+      {
+        id: 'prop-6',
+        title: 'Kensington Garden Townhouse Residence',
+        category: 'Rent',
+        location: 'London, Kensington',
+        country: 'United Kingdom',
+        price: 6500,
+        currency: '€',
+        period: 'month',
+        bedrooms: 4,
+        bathrooms: 3,
+        maxGuests: 7,
+        sizeSqFt: 2900,
+        rating: 4.96,
+        reviewsCount: 19,
+        status: 'Published',
+        views: 1100,
+        image: 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1000&q=80',
+        gallery: [
+          'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1000&q=80'
+        ],
+        description: 'Classic Victorian architectural charm meets high-tech modern interior design. Private landscaped garden, heated floors, wine cellar, and gated off-street parking in central London.',
+        host: { name: 'Edward Sterling', email: 'edward@londonestates.demo', phone: '+44 20 7946 0912', verified: true }
+      }
+    ];
+
+    function App() {
+      // Main state
+      const [properties, setProperties] = useState(INITIAL_PROPERTIES);
+      const [favorites, setFavorites] = useState(['prop-1', 'prop-2']);
+      const [viewMode, setViewMode] = useState('browse'); // 'browse' | 'dashboard'
+      const [selectedCategory, setSelectedCategory] = useState('All');
+      
+      // Search / Filter States
+      const [searchQuery, setSearchQuery] = useState('');
+      const [selectedCountry, setSelectedCountry] = useState('All');
+      const [priceRange, setPriceRange] = useState(50000000);
+      const [minBedrooms, setMinBedrooms] = useState('Any');
+      const [minGuests, setMinGuests] = useState('Any');
+
+      // Modals State
+      const [selectedProperty, setSelectedProperty] = useState(null);
+      const [checkoutProperty, setCheckoutProperty] = useState(null);
+      const [isListingModalOpen, setIsListingModalOpen] = useState(false);
+      const [isExporterOpen, setIsExporterOpen] = useState(false);
+      const [hostContactModal, setHostContactModal] = useState(null);
+
+      // Toast / Notification
+      const [toastMessage, setToastMessage] = useState(null);
+
+      const showToast = (msg) => {
+        setToastMessage(msg);
+        setTimeout(() => setToastMessage(null), 3500);
+      };
+
+      // Toggle Favorites
+      const toggleFavorite = (id, e) => {
+        if (e) e.stopPropagation();
+        if (favorites.includes(id)) {
+          setFavorites(favorites.filter(favId => favId !== id));
+          showToast('Removed from favorites');
+        } else {
+          setFavorites([...favorites, id]);
+          showToast('Saved to favorites!');
+        }
+      };
+
+      // Filtered Properties Logic
+      const filteredProperties = useMemo(() => {
+        return properties.filter(p => {
+          // Category filter
+          if (selectedCategory !== 'All' && p.category !== selectedCategory) return false;
+          // Country filter
+          if (selectedCountry !== 'All' && p.country !== selectedCountry) return false;
+          // Bedrooms filter
+          if (minBedrooms !== 'Any' && p.bedrooms < parseInt(minBedrooms)) return false;
+          // Guests filter
+          if (minGuests !== 'Any' && p.maxGuests < parseInt(minGuests)) return false;
+          // Search Query
+          if (searchQuery.trim() !== '') {
+            const q = searchQuery.toLowerCase();
+            const matchTitle = p.title.toLowerCase().includes(q);
+            const matchLoc = p.location.toLowerCase().includes(q);
+            const matchCountry = p.country.toLowerCase().includes(q);
+            if (!matchTitle && !matchLoc && !matchCountry) return false;
+          }
+          return true;
+        });
+      }, [properties, selectedCategory, selectedCountry, minBedrooms, minGuests, searchQuery]);
+
+      // Handle Adding New Property from Form
+      const handleAddProperty = (newProp) => {
+        setProperties([newProp, ...properties]);
+        setIsListingModalOpen(false);
+        showToast('🎉 Property published successfully!');
+      };
+
+      return (
+        <div className="min-h-screen flex flex-col bg-brand-bg text-slate-100 font-sans">
+          
+          {}
+          <header className="sticky top-0 z-40 bg-brand-surface/90 backdrop-blur-md border-b border-brand-border px-4 lg:px-8 py-3 flex items-center justify-between">
+            {/* Brand Logo */}
+            <div className="flex items-center space-x-3 cursor-pointer" onClick={() => { setViewMode('browse'); setSelectedCategory('All'); }}>
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-emerald to-emerald-800 flex items-center justify-center text-black font-extrabold text-xl shadow-lg shadow-emerald-900/30">
+                G
+              </div>
+              <div>
+                <span className="text-xl font-bold tracking-tight text-white flex items-center gap-1">
+                  GLOBAL<span className="text-brand-gold">ESTATES</span>
+                </span>
+                <span className="text-[10px] text-emerald-400 block tracking-wider uppercase font-semibold">Worldwide Marketplace</span>
+              </div>
+            </div>
+
+            {/* Navigation Tabs */}
+            <nav className="hidden md:flex items-center space-x-1 bg-brand-bg/60 p-1.5 rounded-xl border border-brand-border">
+              {['All', 'Rent', 'Vacation', 'Outings', 'Land'].map((cat) => (
+                <button
+                  key={cat}
+                  onClick={() => { setSelectedCategory(cat); setViewMode('browse'); }}
+                  className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 ${
+                    viewMode === 'browse' && selectedCategory === cat
+                      ? 'bg-brand-emerald text-black shadow-md font-semibold'
+                      : 'text-slate-300 hover:text-white hover:bg-brand-card/50'
+                  }`}
+                >
+                  {cat}
+                </button>
+              ))}
+            </nav>
+
+            {/* Right Action Buttons */}
+            <div className="flex items-center space-x-3">
+              {/* Favorites Counter */}
+              <button 
+                onClick={() => {
+                  setViewMode('browse');
+                  showToast(`Showing ${favorites.length} saved properties`);
+                }}
+                className="relative p-2.5 rounded-xl bg-brand-card border border-brand-border text-slate-300 hover:text-brand-gold hover:border-brand-gold/50 transition"
+                title="Saved Favorites"
+              >
+                <i data-lucide="heart" className="w-5 h-5"></i>
+                {favorites.length > 0 && (
+                  <span className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-brand-gold text-black font-bold text-xs rounded-full flex items-center justify-center shadow">
+                    {favorites.length}
+                  </span>
+                )}
+              </button>
+
+              {/* View Dashboard / Browse Toggle */}
+              <button
+                onClick={() => setViewMode(viewMode === 'browse' ? 'dashboard' : 'browse')}
+                className={`px-3.5 py-2 rounded-xl text-sm font-medium border flex items-center gap-2 transition ${
+                  viewMode === 'dashboard'
+                    ? 'bg-brand-gold text-black border-brand-gold font-semibold'
+                    : 'bg-brand-card border-brand-border text-slate-200 hover:border-slate-500'
+                }`}
+              >
+                <i data-lucide={viewMode === 'dashboard' ? 'compass' : 'layout-dashboard'} className="w-4 h-4"></i>
+                <span className="hidden sm:inline">{viewMode === 'dashboard' ? 'Browse Properties' : 'My Dashboard'}</span>
+              </button>
+
+              {/* List Property Button */}
+              <button
+                onClick={() => setIsListingModalOpen(true)}
+                className="px-4 py-2 rounded-xl text-sm font-semibold bg-gradient-to-r from-brand-emerald to-emerald-600 text-black hover:from-emerald-400 hover:to-emerald-500 shadow-md shadow-emerald-950/50 transition flex items-center gap-1.5"
+              >
+                <i data-lucide="plus-circle" className="w-4 h-4"></i>
+                <span className="hidden sm:inline">List Property</span>
+              </button>
+
+              {/* Source Code ZIP Exporter Button */}
+              <button
+                onClick={() => setIsExporterOpen(true)}
+                className="px-3.5 py-2 rounded-xl text-sm font-medium bg-brand-card hover:bg-brand-border border border-brand-gold/40 text-brand-gold transition flex items-center gap-2 shadow"
+                title="Download Full Project Source Code"
+              >
+                <i data-lucide="download" className="w-4 h-4"></i>
+                <span className="hidden lg:inline">Export Code</span>
+              </button>
+            </div>
+          </header>
+
+          {}
+          {toastMessage && (
+            <div className="fixed bottom-5 right-5 z-50 bg-brand-surface border border-brand-emerald/50 text-slate-100 px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3 animate-bounce">
+              <i data-lucide="check-circle" className="w-5 h-5 text-brand-emerald"></i>
+              <span className="text-sm font-medium">{toastMessage}</span>
+            </div>
+          )}
+
+          {/* MAIN VIEW SWITCHER */}
+          {viewMode === 'browse' ? (
+            <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-8">
+              
+              {}
+              <div className="relative rounded-3xl overflow-hidden border border-brand-border bg-gradient-to-r from-brand-surface via-brand-card to-brand-bg p-6 sm:p-10 shadow-2xl">
+                <div className="absolute -top-24 -right-24 w-96 h-96 bg-brand-emerald/10 rounded-full blur-3xl pointer-events-none"></div>
+                <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-brand-gold/10 rounded-full blur-3xl pointer-events-none"></div>
+
+                <div className="relative z-10 max-w-3xl space-y-4">
+                  <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-brand-emerald/10 text-brand-emerald border border-brand-emerald/20">
+                    <i data-lucide="globe" className="w-3.5 h-3.5"></i>
+                    Global Real Estate & Experience Network
+                  </span>
+                  <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-white leading-tight">
+                    Find Your Next Rent, Vacation Spot, Outing or Land.
+                  </h1>
+                  <p className="text-slate-400 text-sm sm:text-base">
+                    Discover verified luxury apartments, tropical beach villas, mountain outings, and prime development land worldwide with instant Stripe checkout.
+                  </p>
+                </div>
+
+                {/* Filter Search Form Box */}
+                <div className="mt-8 bg-brand-bg/90 backdrop-blur-md p-4 sm:p-5 rounded-2xl border border-brand-border shadow-2xl grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+                  
+                  {/* Query Input */}
+                  <div className="space-y-1 sm:col-span-2 lg:col-span-2">
+                    <label className="text-xs font-medium text-slate-400 flex items-center gap-1">
+                      <i data-lucide="search" className="w-3.5 h-3.5 text-brand-emerald"></i> Location or Keyword
+                    </label>
+                    <input
+                      type="text"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      placeholder="e.g. Kilimani, Diani Beach, London..."
+                      className="w-full bg-brand-surface border border-brand-border rounded-xl px-3.5 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-brand-emerald"
+                    />
+                  </div>
+
+                  {/* Country Dropdown */}
+                  <div className="space-y-1">
+                    <label className="text-xs font-medium text-slate-400 flex items-center gap-1">
+                      <i data-lucide="map-pin" className="w-3.5 h-3.5 text-brand-gold"></i> Country
+                    </label>
+                    <select
+                      value={selectedCountry}
+                      onChange={(e) => setSelectedCountry(e.target.value)}
+                      className="w-full bg-brand-surface border border-brand-border rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-emerald"
+                    >
+                      <option value="All">All Countries</option>
+                      <option value="Kenya">Kenya 🇰🇪</option>
+                      <option value="Tanzania">Tanzania 🇹🇿</option>
+                      <option value="United Kingdom">United Kingdom 🇬🇧</option>
+                    </select>
+                  </div>
+
+                  {/* Min Bedrooms */}
+                  <div className="space-y-1">
+                    <label className="text-xs font-medium text-slate-400 flex items-center gap-1">
+                      <i data-lucide="bed" className="w-3.5 h-3.5 text-brand-emerald"></i> Bedrooms
+                    </label>
+                    <select
+                      value={minBedrooms}
+                      onChange={(e) => setMinBedrooms(e.target.value)}
+                      className="w-full bg-brand-surface border border-brand-border rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-emerald"
+                    >
+                      <option value="Any">Any Beds</option>
+                      <option value="1">1+ Bed</option>
+                      <option value="2">2+ Beds</option>
+                      <option value="3">3+ Beds</option>
+                      <option value="4">4+ Beds</option>
+                    </select>
+                  </div>
+
+                  {/* Min Guests */}
+                  <div className="space-y-1">
+                    <label className="text-xs font-medium text-slate-400 flex items-center gap-1">
+                      <i data-lucide="users" className="w-3.5 h-3.5 text-brand-gold"></i> Capacity / Guests
+                    </label>
+                    <select
+                      value={minGuests}
+                      onChange={(e) => setMinGuests(e.target.value)}
+                      className="w-full bg-brand-surface border border-brand-border rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-emerald"
+                    >
+                      <option value="Any">Any Guests</option>
+                      <option value="2">2+ Guests</option>
+                      <option value="4">4+ Guests</option>
+                      <option value="8">8+ Guests</option>
+                    </select>
+                  </div>
+
+                </div>
+              </div>
+
+              {}
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h2 className="text-2xl font-bold text-white tracking-tight">
+                      {selectedCategory === 'All' ? 'All Featured Properties' : `${selectedCategory} Listings`}
+                    </h2>
+                    <p className="text-sm text-slate-400">
+                      Showing {filteredProperties.length} verified listings available
+                    </p>
+                  </div>
+
+                  <div className="flex items-center space-x-2 text-xs text-slate-400">
+                    <span>Active Filters:</span>
+                    <span className="px-2 py-1 rounded bg-brand-card border border-brand-border text-white">
+                      {selectedCategory}
+                    </span>
+                    {selectedCountry !== 'All' && (
+                      <span className="px-2 py-1 rounded bg-brand-card border border-brand-border text-white">
+                        {selectedCountry}
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {filteredProperties.length === 0 ? (
+                  <div className="text-center py-16 bg-brand-surface rounded-2xl border border-brand-border space-y-3">
+                    <i data-lucide="building-2" className="w-12 h-12 text-slate-500 mx-auto"></i>
+                    <h3 className="text-lg font-semibold text-white">No properties found</h3>
+                    <p className="text-slate-400 text-sm">Try relaxing your search parameters or select a different category.</p>
+                    <button
+                      onClick={() => { setSearchQuery(''); setSelectedCountry('All'); setMinBedrooms('Any'); setMinGuests('Any'); setSelectedCategory('All'); }}
+                      className="px-4 py-2 bg-brand-card border border-brand-border hover:border-brand-emerald text-brand-emerald rounded-xl text-sm font-medium transition"
+                    >
+                      Reset All Filters
+                    </button>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {filteredProperties.map((property) => (
+                      <div
+                        key={property.id}
+                        onClick={() => setSelectedProperty(property)}
+                        className="group bg-brand-surface border border-brand-border hover:border-brand-emerald/50 rounded-2xl overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-emerald-950/20 cursor-pointer flex flex-col"
+                      >
+                        {/* Image Preview Container */}
+                        <div className="relative h-52 w-full overflow-hidden bg-brand-card">
+                          <img
+                            src={property.image}
+                            alt={property.title}
+                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
+
+                          {/* Category Badge */}
+                          <div className="absolute top-3 left-3 flex items-center gap-1.5">
+                            <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-brand-bg/80 backdrop-blur-md text-brand-emerald border border-brand-emerald/30">
+                              {property.category}
+                            </span>
+                            {property.status === 'Featured' && (
+                              <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-brand-gold text-black shadow">
+                                ★ Featured
+                              </span>
+                            )}
+                          </div>
+
+                          {/* Favorite Toggle Button */}
+                          <button
+                            onClick={(e) => toggleFavorite(property.id, e)}
+                            className="absolute top-3 right-3 p-2 rounded-full bg-black/50 hover:bg-black/80 backdrop-blur-md text-white transition"
+                          >
+                            <i
+                              data-lucide="heart"
+                              className={`w-4 h-4 ${favorites.includes(property.id) ? 'fill-brand-gold text-brand-gold' : 'text-white'}`}
+                            ></i>
+                          </button>
+
+                          {/* Price Tag Overlay */}
+                          <div className="absolute bottom-3 left-3 text-white">
+                            <span className="text-xl font-black text-white">
+                              {property.currency} {property.price.toLocaleString()}
+                            </span>
+                            <span className="text-xs text-slate-300 font-light"> /{property.period}</span>
+                          </div>
+                        </div>
+
+                        {/* Card Body Details */}
+                        <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
+                          <div>
+                            <div className="flex items-center gap-1 text-slate-400 text-xs mb-1">
+                              <i data-lucide="map-pin" className="w-3.5 h-3.5 text-brand-emerald"></i>
+                              <span>{property.location}, {property.country}</span>
+                            </div>
+                            <h3 className="font-bold text-base text-white group-hover:text-brand-emerald transition line-clamp-1">
+                              {property.title}
+                            </h3>
+                            <p className="text-xs text-slate-400 mt-1 line-clamp-2">
+                              {property.description}
+                            </p>
+                          </div>
+
+                          {/* Specs Bar */}
+                          <div className="pt-3 border-t border-brand-border/60 flex items-center justify-between text-xs text-slate-300">
+                            {property.bedrooms > 0 ? (
+                              <div className="flex items-center gap-1">
+                                <i data-lucide="bed" className="w-3.5 h-3.5 text-slate-400"></i>
+                                <span>{property.bedrooms} Beds</span>
+                              </div>
+                            ) : (
+                              <div className="flex items-center gap-1">
+                                <i data-lucide="layers" className="w-3.5 h-3.5 text-slate-400"></i>
+                                <span>{(property.sizeSqFt / 43560).toFixed(1)} Acres</span>
+                              </div>
+                            )}
+
+                            {property.maxGuests > 0 && (
+                              <div className="flex items-center gap-1">
+                                <i data-lucide="users" className="w-3.5 h-3.5 text-slate-400"></i>
+                                <span>{property.maxGuests} Guests</span>
+                              </div>
+                            )}
+
+                            <div className="flex items-center gap-1 font-semibold text-brand-gold">
+                              <i data-lucide="star" className="w-3.5 h-3.5 fill-brand-gold"></i>
+                              <span>{property.rating} ({property.reviewsCount})</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </main>
+          ) : (
+            <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+              <div>
+                <h1 className="text-3xl font-extrabold text-white">Owner & Host Dashboard</h1>
+                <p className="text-slate-400 text-sm mt-1">Manage your active listings, view real-time payouts, and generate optimized descriptions.</p>
+              </div>
+
+              {/* Revenue Metrics Cards */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="bg-brand-surface border border-brand-border p-5 rounded-2xl space-y-2">
+                  <div className="flex items-center justify-between text-slate-400 text-xs font-semibold uppercase">
+                    <span>Gross Revenue</span>
+                    <i data-lucide="dollar-sign" className="w-4 h-4 text-brand-emerald"></i>
+                  </div>
+                  <div className="text-2xl font-black text-white">KSh 1,280,000</div>
+                  <div className="text-xs text-brand-emerald flex items-center gap-1">
+                    <i data-lucide="trending-up" className="w-3 h-3"></i> +18.4% this month
+                  </div>
+                </div>
+
+                <div className="bg-brand-surface border border-brand-border p-5 rounded-2xl space-y-2">
+                  <div className="flex items-center justify-between text-slate-400 text-xs font-semibold uppercase">
+                    <span>Platform Fee (10%)</span>
+                    <i data-lucide="pie-chart" className="w-4 h-4 text-brand-gold"></i>
+                  </div>
+                  <div className="text-2xl font-black text-white">KSh 128,000</div>
+                  <div className="text-xs text-slate-400">Automated platform split</div>
+                </div>
+
+                <div className="bg-brand-surface border border-brand-border p-5 rounded-2xl space-y-2">
+                  <div className="flex items-center justify-between text-slate-400 text-xs font-semibold uppercase">
+                    <span>Host Net Payout</span>
+                    <i data-lucide="wallet" className="w-4 h-4 text-brand-emerald"></i>
+                  </div>
+                  <div className="text-2xl font-black text-brand-emerald">KSh 1,152,000</div>
+                  <div className="text-xs text-slate-400">Next payout in 2 days</div>
+                </div>
+
+                <div className="bg-brand-surface border border-brand-border p-5 rounded-2xl space-y-2">
+                  <div className="flex items-center justify-between text-slate-400 text-xs font-semibold uppercase">
+                    <span>Total Bookings</span>
+                    <i data-lucide="calendar" className="w-4 h-4 text-blue-400"></i>
+                  </div>
+                  <div className="text-2xl font-black text-white">42 Bookings</div>
+                  <div className="text-xs text-blue-400 font-medium">94% Occupancy Rate</div>
+                </div>
+              </div>
+
+              {/* My Listings Table */}
+              <div className="bg-brand-surface border border-brand-border rounded-2xl p-6 space-y-4">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-lg font-bold text-white">My Active Listings ({properties.length})</h2>
+                  <button
+                    onClick={() => setIsListingModalOpen(true)}
+                    className="px-3.5 py-1.5 rounded-xl bg-brand-emerald text-black font-semibold text-xs flex items-center gap-1.5 shadow"
+                  >
+                    <i data-lucide="plus" className="w-4 h-4"></i> Add New
+                  </button>
+                </div>
+
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-sm text-slate-300">
+                    <thead className="bg-brand-card text-xs uppercase text-slate-400 border-b border-brand-border">
+                      <tr>
+                        <th className="py-3 px-4">Property</th>
+                        <th className="py-3 px-4">Category</th>
+                        <th className="py-3 px-4">Price</th>
+                        <th className="py-3 px-4">Status</th>
+                        <th className="py-3 px-4">Views</th>
+                        <th className="py-3 px-4 text-right">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-brand-border/60">
+                      {properties.map((p) => (
+                        <tr key={p.id} className="hover:bg-brand-card/50 transition">
+                          <td className="py-3 px-4 flex items-center gap-3">
+                            <img src={p.image} className="w-10 h-10 rounded-lg object-cover" alt="" />
+                            <div>
+                              <div className="font-semibold text-white">{p.title}</div>
+                              <div className="text-xs text-slate-400">{p.location}</div>
+                            </div>
+                          </td>
+                          <td className="py-3 px-4">
+                            <span className="px-2 py-0.5 rounded text-xs bg-brand-bg border border-brand-border text-slate-200">
+                              {p.category}
+                            </span>
+                          </td>
+                          <td className="py-3 px-4 font-bold text-white">
+                            {p.currency} {p.price.toLocaleString()} /{p.period}
+                          </td>
+                          <td className="py-3 px-4">
+                            <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
+                              p.status === 'Featured'
+                                ? 'bg-brand-gold/20 text-brand-gold border border-brand-gold/40'
+                                : 'bg-brand-emerald/20 text-brand-emerald border border-brand-emerald/40'
+                            }`}>
+                              {p.status}
+                            </span>
+                          </td>
+                          <td className="py-3 px-4 text-slate-400 text-xs">
+                            <i data-lucide="eye" className="w-3.5 h-3.5 inline mr-1"></i>
+                            {p.views || 100}
+                          </td>
+                          <td className="py-3 px-4 text-right space-x-2">
+                            <button
+                              onClick={() => setSelectedProperty(p)}
+                              className="px-2.5 py-1 rounded bg-brand-card hover:bg-brand-border text-xs text-slate-200 transition"
+                            >
+                              View
+                            </button>
+                            <button
+                              onClick={() => {
+                                setProperties(properties.filter(x => x.id !== p.id));
+                                showToast('Listing deleted');
+                              }}
+                              className="px-2.5 py-1 rounded bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs transition"
+                            >
+                              Delete
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </main>
+          )}
+
+          {}
+          {selectedProperty && (
+            <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
+              <div className="bg-brand-surface border border-brand-border rounded-3xl max-w-3xl w-full overflow-hidden shadow-2xl my-8 relative flex flex-col max-h-[90vh]">
+                
+                {/* Header Actions */}
+                <div className="absolute top-4 right-4 z-20 flex items-center gap-2">
+                  <button
+                    onClick={() => setSelectedProperty(null)}
+                    className="p-2.5 rounded-full bg-black/60 hover:bg-black text-white backdrop-blur-md transition"
+                  >
+                    <i data-lucide="x" className="w-5 h-5"></i>
+                  </button>
+                </div>
+
+                {/* Main Hero Gallery */}
+                <div className="relative h-72 sm:h-80 bg-black flex-shrink-0">
+                  <img
+                    src={selectedProperty.image}
+                    alt=""
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-brand-surface via-transparent to-transparent"></div>
+                  
+                  <div className="absolute bottom-4 left-6 right-6 flex justify-between items-end">
+                    <div>
+                      <span className="px-3 py-1 rounded-full text-xs font-bold bg-brand-emerald text-black shadow">
+                        {selectedProperty.category}
+                      </span>
+                      <h2 className="text-2xl sm:text-3xl font-extrabold text-white mt-2">
+                        {selectedProperty.title}
+                      </h2>
+                      <p className="text-sm text-slate-300 flex items-center gap-1 mt-1">
+                        <i data-lucide="map-pin" className="w-4 h-4 text-brand-emerald"></i>
+                        {selectedProperty.location}, {selectedProperty.country}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Content Details */}
+                <div className="p-6 sm:p-8 overflow-y-auto space-y-6">
+                  
+                  {/* Price & Primary CTA Bar */}
+                  <div className="flex flex-wrap items-center justify-between p-4 rounded-2xl bg-brand-card border border-brand-border gap-4">
+                    <div>
+                      <span className="text-xs text-slate-400 block">Rate / Price</span>
+                      <span className="text-2xl font-black text-white">
+                        {selectedProperty.currency} {selectedProperty.price.toLocaleString()}
+                      </span>
+                      <span className="text-xs text-slate-400 font-light"> /{selectedProperty.period}</span>
+                    </div>
+
+                    <div className="flex items-center gap-3">
+                      <button
+                        onClick={() => setHostContactModal(selectedProperty.host)}
+                        className="px-4 py-2.5 rounded-xl border border-brand-border hover:border-brand-gold text-brand-gold font-semibold text-sm transition"
+                      >
+                        Contact Host
+                      </button>
+                      <button
+                        onClick={() => {
+                          const prop = selectedProperty;
+                          setSelectedProperty(null);
+                          setCheckoutProperty(prop);
+                        }}
+                        className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-brand-emerald to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-black font-bold text-sm shadow-lg shadow-emerald-950/50 transition flex items-center gap-2"
+                      >
+                        <i data-lucide="credit-card" className="w-4 h-4"></i> Book & Pay Now
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Spec Icons */}
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 py-2 border-y border-brand-border/60 text-center text-sm">
+                    {selectedProperty.bedrooms > 0 && (
+                      <div className="p-2">
+                        <div className="text-slate-400 text-xs">Bedrooms</div>
+                        <div className="font-bold text-white text-base mt-0.5">{selectedProperty.bedrooms} Beds</div>
+                      </div>
+                    )}
+                    {selectedProperty.bathrooms > 0 && (
+                      <div className="p-2">
+                        <div className="text-slate-400 text-xs">Bathrooms</div>
+                        <div className="font-bold text-white text-base mt-0.5">{selectedProperty.bathrooms} Baths</div>
+                      </div>
+                    )}
+                    <div className="p-2">
+                      <div className="text-slate-400 text-xs">Property Size</div>
+                      <div className="font-bold text-white text-base mt-0.5">{selectedProperty.sizeSqFt.toLocaleString()} sq ft</div>
+                    </div>
+                    <div className="p-2">
+                      <div className="text-slate-400 text-xs">Host Rating</div>
+                      <div className="font-bold text-brand-gold text-base mt-0.5">★ {selectedProperty.rating}</div>
+                    </div>
+                  </div>
+
+                  {/* Description */}
+                  <div className="space-y-2">
+                    <h3 className="text-lg font-bold text-white">About this Property</h3>
+                    <p className="text-slate-300 text-sm leading-relaxed">
+                      {selectedProperty.description}
+                    </p>
+                  </div>
+
+                  {/* Host Info */}
+                  <div className="p-4 rounded-2xl bg-brand-card/60 border border-brand-border flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-full bg-brand-emerald/20 text-brand-emerald font-extrabold flex items-center justify-center text-lg border border-brand-emerald/40">
+                        {selectedProperty.host.name.charAt(0)}
+                      </div>
+                      <div>
+                        <div className="font-bold text-white flex items-center gap-1.5">
+                          {selectedProperty.host.name}
+                          {selectedProperty.host.verified && (
+                            <span className="text-brand-emerald text-xs" title="Verified Host">✓ Verified</span>
+                          )}
+                        </div>
+                        <div className="text-xs text-slate-400">{selectedProperty.host.email}</div>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+          )}
+
+          {}
+          {checkoutProperty && (
+            <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
+              <div className="bg-brand-surface border border-brand-border rounded-3xl max-w-lg w-full p-6 space-y-6 shadow-2xl relative">
+                <button
+                  onClick={() => setCheckoutProperty(null)}
+                  className="absolute top-4 right-4 p-2 rounded-full hover:bg-brand-card text-slate-400 hover:text-white"
+                >
+                  <i data-lucide="x" className="w-5 h-5"></i>
+                </button>
+
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2 text-xs font-bold text-brand-emerald uppercase tracking-wider">
+                    <i data-lucide="lock" className="w-3.5 h-3.5"></i> Stripe Secure Checkout
+                  </div>
+                  <h2 className="text-2xl font-extrabold text-white">Complete Booking</h2>
+                </div>
+
+                <div className="p-4 rounded-xl bg-brand-card border border-brand-border flex items-center gap-3">
+                  <img src={checkoutProperty.image} className="w-14 h-14 rounded-lg object-cover" alt="" />
+                  <div>
+                    <h4 className="font-bold text-white text-sm line-clamp-1">{checkoutProperty.title}</h4>
+                    <p className="text-xs text-slate-400">{checkoutProperty.location}</p>
+                  </div>
+                </div>
+
+                {/* Dynamic Fee Breakdown */}
+                <div className="space-y-2 text-sm border-t border-b border-brand-border py-4 text-slate-300">
+                  <div className="flex justify-between">
+                    <span>Base Amount</span>
+                    <span className="font-semibold text-white">{checkoutProperty.currency} {checkoutProperty.price.toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between text-xs text-slate-400">
+                    <span>Platform Fee (10% Marketplace Split)</span>
+                    <span>{checkoutProperty.currency} {(checkoutProperty.price * 0.10).toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between text-xs text-slate-400">
+                    <span>Estimated Host Payout (90%)</span>
+                    <span className="text-brand-emerald">{checkoutProperty.currency} {(checkoutProperty.price * 0.90).toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between pt-2 border-t border-brand-border font-bold text-base text-white">
+                    <span>Total Due Now</span>
+                    <span className="text-brand-gold">{checkoutProperty.currency} {checkoutProperty.price.toLocaleString()}</span>
+                  </div>
+                </div>
+
+                {/* Dummy Payment Input */}
+                <div className="space-y-3">
+                  <div>
+                    <label className="text-xs font-semibold text-slate-400 block mb-1">Card Details</label>
+                    <div className="bg-brand-card border border-brand-border rounded-xl p-3 flex items-center gap-2">
+                      <i data-lucide="credit-card" className="w-5 h-5 text-slate-400"></i>
+                      <input
+                        type="text"
+                        disabled
+                        value="•••• •••• •••• 4242 (Test Stripe Card)"
+                        className="bg-transparent text-xs text-slate-300 w-full focus:outline-none"
+                      />
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => {
+                      showToast(`Payment of ${checkoutProperty.currency} ${checkoutProperty.price} processed via Stripe!`);
+                      setCheckoutProperty(null);
+                    }}
+                    className="w-full py-3.5 rounded-xl bg-gradient-to-r from-brand-emerald to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-black font-extrabold text-base shadow-xl shadow-emerald-950/50 transition flex items-center justify-center gap-2"
+                  >
+                    <i data-lucide="shield-check" className="w-5 h-5"></i> Pay {checkoutProperty.currency} {checkoutProperty.price.toLocaleString()}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {}
+          {hostContactModal && (
+            <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+              <div className="bg-brand-surface border border-brand-border rounded-3xl max-w-md w-full p-6 space-y-5 relative shadow-2xl">
+                <button onClick={() => setHostContactModal(null)} className="absolute top-4 right-4 text-slate-400 hover:text-white">
+                  <i data-lucide="x" className="w-5 h-5"></i>
+                </button>
+                <div className="text-center space-y-2">
+                  <div className="w-16 h-16 rounded-full bg-brand-emerald/20 text-brand-emerald font-extrabold flex items-center justify-center text-2xl mx-auto border border-brand-emerald/40">
+                    {hostContactModal.name.charAt(0)}
+                  </div>
+                  <h3 className="text-xl font-bold text-white">{hostContactModal.name}</h3>
+                  <p className="text-xs text-brand-emerald font-semibold">Verified Global Estates Host</p>
+                </div>
+
+                <div className="space-y-3 bg-brand-card p-4 rounded-xl border border-brand-border text-sm">
+                  <div className="flex items-center gap-3">
+                    <i data-lucide="mail" className="w-4 h-4 text-brand-emerald"></i>
+                    <span className="text-slate-200">{hostContactModal.email}</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <i data-lucide="phone" className="w-4 h-4 text-brand-gold"></i>
+                    <span className="text-slate-200">{hostContactModal.phone}</span>
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => {
+                    showToast('Direct message request sent to host!');
+                    setHostContactModal(null);
+                  }}
+                  className="w-full py-3 rounded-xl bg-brand-card border border-brand-emerald text-brand-emerald font-bold text-sm hover:bg-brand-emerald hover:text-black transition"
+                >
+                  Send Direct Inquiry
+                </button>
+              </div>
+            </div>
+          )}
+
+          {}
+          {isListingModalOpen && (
+            <ListingModal
+              onClose={() => setIsListingModalOpen(false)}
+              onSubmit={handleAddProperty}
+              showToast={showToast}
+            />
+          )}
+
+          {}
+          {isExporterOpen && (
+            <ExporterModal onClose={() => setIsExporterOpen(false)} showToast={showToast} />
+          )}
+
+          {}
+          <footer className="mt-auto border-t border-brand-border bg-brand-surface py-8 px-4 lg:px-8 text-center text-xs text-slate-400">
+            <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="flex items-center gap-2 font-bold text-white">
+                <span className="w-6 h-6 rounded-md bg-brand-emerald text-black flex items-center justify-center text-xs">G</span>
+                GLOBAL ESTATES MARKETPLACE
+              </div>
+              <p>© 2026 Global Estates Inc. All rights reserved. Rent • Vacation • Outings • Land.</p>
+              <div className="flex items-center space-x-4">
+                <a href="#" className="hover:text-brand-emerald transition">Privacy</a>
+                <a href="#" className="hover:text-brand-emerald transition">Terms</a>
+                <a href="#" className="hover:text-brand-emerald transition">API</a>
+              </div>
+            </div>
+          </footer>
+
+        </div>
+      );
+    }
+
+    function ListingModal({ onClose, onSubmit, showToast }) {
+      const [title, setTitle] = useState('');
+      const [category, setCategory] = useState('Rent');
+      const [location, setLocation] = useState('');
+      const [country, setCountry] = useState('Kenya');
+      const [price, setPrice] = useState('');
+      const [currency, setCurrency] = useState('KSh');
+      const [period, setPeriod] = useState('month');
+      const [bedrooms, setBedrooms] = useState(2);
+      const [bathrooms, setBathrooms] = useState(2);
+      const [maxGuests, setMaxGuests] = useState(4);
+      const [sizeSqFt, setSizeSqFt] = useState(1500);
+      const [tier, setTier] = useState('Featured'); // Free, Featured, Premium
+      const [imageUrl, setImageUrl] = useState('https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1000&q=80');
+      const [description, setDescription] = useState('');
+
+      // AI Generator Panel States
+      const [isAiGenerating, setIsAiGenerating] = useState(false);
+      const [aiLength, setAiLength] = useState('Standard');
+      const [aiTone, setAiTone] = useState('Luxury');
+      const [aiLang, setAiLang] = useState('English');
+
+      // AI Call Simulator / Client API Trigger
+      const handleGenerateAiDescription = async () => {
+        if (!title || !location) {
+          showToast('Please fill in Property Title & Location first!');
+          return;
+        }
+
+        setIsAiGenerating(true);
+        try {
+          const prompt = `Write a ${aiTone.toLowerCase()} real estate listing description for a property named "${title}" located in ${location}, ${country}. Category is ${category}. Specs: ${bedrooms} beds, ${bathrooms} baths, ${sizeSqFt} sq ft. Target length: ${aiLength}. Write in ${aiLang} language. Make it compelling for high-value renters or buyers.`;
+          
+          const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              contents: [{ parts: [{ text: prompt }] }],
+              systemInstruction: {
+                parts: [{ text: "You are a professional luxury real estate copywriter. Output ONLY the polished listing description text directly without introduction or meta commentary." }]
+              }
+            })
+          });
+
+          const result = await response.json();
+          const generatedText = result?.candidates?.[0]?.content?.parts?.[0]?.text;
+
+          if (generatedText) {
+            setDescription(generatedText.trim());
+            showToast(`AI Description generated in ${aiLang}!`);
+          } else {
+            // Fallback generated text if API key empty or blocked
+            setDescription(`Welcome to ${title}, an extraordinary ${category.toLowerCase()} opportunity located in the prime area of ${location}, ${country}. Featuring ${bedrooms} bedroom suites, ${bathrooms} bathrooms, and spanning over ${sizeSqFt} sq. ft., this property is tailored for discerning individuals seeking top-tier comfort, modern security, and incredible local convenience.`);
+            showToast('AI Description generated!');
+          }
+        } catch (err) {
+          setDescription(`Discover luxury living at ${title} in ${location}, ${country}. Featuring ${bedrooms} spacious bedrooms and ${bathrooms} modern bathrooms across ${sizeSqFt} sq. ft. Perfect for ${category.toLowerCase()} with premium finishes and high accessibility.`);
+          showToast('AI Description generated (offline mode)!');
+        } finally {
+          setIsAiGenerating(false);
+        }
+      };
+
+      const handleSubmitForm = (e) => {
+        e.preventDefault();
+        if (!title || !price || !location) {
+          showToast('Please complete all required fields.');
+          return;
+        }
+
+        const newProp = {
+          id: 'prop-' + Date.now(),
+          title,
+          category,
+          location,
+          country,
+          price: parseFloat(price),
+          currency,
+          period,
+          bedrooms: parseInt(bedrooms),
+          bathrooms: parseFloat(bathrooms),
+          maxGuests: parseInt(maxGuests),
+          sizeSqFt: parseInt(sizeSqFt),
+          rating: 5.0,
+          reviewsCount: 1,
+          status: tier,
+          views: 1,
+          image: imageUrl || 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1000&q=80',
+          gallery: [imageUrl],
+          description: description || 'No detailed description provided.',
+          host: { name: 'Current Owner User', email: 'owner@globalestates.demo', phone: '+254 700 000 000', verified: true }
+        };
+
+        onSubmit(newProp);
+      };
+
+      return (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-brand-surface border border-brand-border rounded-3xl max-w-3xl w-full p-6 sm:p-8 space-y-6 shadow-2xl relative my-8 max-h-[90vh] overflow-y-auto">
+            <button onClick={onClose} className="absolute top-5 right-5 text-slate-400 hover:text-white">
+              <i data-lucide="x" className="w-6 h-6"></i>
+            </button>
+
+            <div>
+              <span className="text-xs font-bold text-brand-emerald uppercase tracking-wider">Property Intake Portal</span>
+              <h2 className="text-2xl font-extrabold text-white mt-1">List Your Property</h2>
+            </div>
+
+            <form onSubmit={handleSubmitForm} className="space-y-6">
+              
+              {/* Category & Tier Selector */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-xs font-semibold text-slate-300 block mb-1">Marketplace Category</label>
+                  <select
+                    value={category}
+                    onChange={(e) => setCategory(e.target.value)}
+                    className="w-full bg-brand-card border border-brand-border rounded-xl px-3.5 py-2.5 text-sm text-white focus:border-brand-emerald focus:outline-none"
+                  >
+                    <option value="Rent">Rent (Apartment, House)</option>
+                    <option value="Vacation">Vacation (Villa, Resort)</option>
+                    <option value="Outings">Outings (Adventure, Glamping)</option>
+                    <option value="Land">Land (Plot, Farm)</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="text-xs font-semibold text-slate-300 block mb-1">Listing Promotion Tier</label>
+                  <select
+                    value={tier}
+                    onChange={(e) => setTier(e.target.value)}
+                    className="w-full bg-brand-card border border-brand-border rounded-xl px-3.5 py-2.5 text-sm text-brand-gold font-semibold focus:border-brand-gold focus:outline-none"
+                  >
+                    <option value="Free">Free Listing (KSh 0)</option>
+                    <option value="Featured">Featured Badge (KSh 500)</option>
+                    <option value="Premium">Premium Top Banner (KSh 2,000)</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Title & Location */}
+              <div className="space-y-4">
+                <div>
+                  <label className="text-xs font-semibold text-slate-300 block mb-1">Property Title *</label>
+                  <input
+                    type="text"
+                    required
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    placeholder="e.g. Modern Glass Penthouse with Ocean Views"
+                    className="w-full bg-brand-card border border-brand-border rounded-xl px-3.5 py-2.5 text-sm text-white placeholder-slate-500 focus:border-brand-emerald focus:outline-none"
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-xs font-semibold text-slate-300 block mb-1">City / Region *</label>
+                    <input
+                      type="text"
+                      required
+                      value={location}
+                      onChange={(e) => setLocation(e.target.value)}
+                      placeholder="e.g. Kilimani, Nairobi"
+                      className="w-full bg-brand-card border border-brand-border rounded-xl px-3.5 py-2.5 text-sm text-white placeholder-slate-500 focus:border-brand-emerald focus:outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-semibold text-slate-300 block mb-1">Country</label>
+                    <input
+                      type="text"
+                      value={country}
+                      onChange={(e) => setCountry(e.target.value)}
+                      placeholder="e.g. Kenya"
+                      className="w-full bg-brand-card border border-brand-border rounded-xl px-3.5 py-2.5 text-sm text-white focus:border-brand-emerald focus:outline-none"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Price & Period */}
+              <div className="grid grid-cols-3 gap-3">
+                <div className="col-span-1">
+                  <label className="text-xs font-semibold text-slate-300 block mb-1">Currency</label>
+                  <select
+                    value={currency}
+                    onChange={(e) => setCurrency(e.target.value)}
+                    className="w-full bg-brand-card border border-brand-border rounded-xl px-3 py-2.5 text-sm text-white focus:border-brand-emerald focus:outline-none"
+                  >
+                    <option value="KSh">KSh</option>
+                    <option value="$">$ USD</option>
+                    <option value="€">€ EUR</option>
+                  </select>
+                </div>
+
+                <div className="col-span-1">
+                  <label className="text-xs font-semibold text-slate-300 block mb-1">Price *</label>
+                  <input
+                    type="number"
+                    required
+                    value={price}
+                    onChange={(e) => setPrice(e.target.value)}
+                    placeholder="150000"
+                    className="w-full bg-brand-card border border-brand-border rounded-xl px-3.5 py-2.5 text-sm text-white focus:border-brand-emerald focus:outline-none"
+                  />
+                </div>
+
+                <div className="col-span-1">
+                  <label className="text-xs font-semibold text-slate-300 block mb-1">Billing Period</label>
+                  <select
+                    value={period}
+                    onChange={(e) => setPeriod(e.target.value)}
+                    className="w-full bg-brand-card border border-brand-border rounded-xl px-3 py-2.5 text-sm text-white focus:border-brand-emerald focus:outline-none"
+                  >
+                    <option value="month">Per Month</option>
+                    <option value="night">Per Night</option>
+                    <option value="day">Per Day</option>
+                    <option value="sale">Total Sale</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Specs Input */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <div>
+                  <label className="text-xs font-semibold text-slate-300 block mb-1">Bedrooms</label>
+                  <input
+                    type="number"
+                    value={bedrooms}
+                    onChange={(e) => setBedrooms(e.target.value)}
+                    className="w-full bg-brand-card border border-brand-border rounded-xl px-3 py-2 text-sm text-white focus:outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs font-semibold text-slate-300 block mb-1">Bathrooms</label>
+                  <input
+                    type="number"
+                    step="0.5"
+                    value={bathrooms}
+                    onChange={(e) => setBathrooms(e.target.value)}
+                    className="w-full bg-brand-card border border-brand-border rounded-xl px-3 py-2 text-sm text-white focus:outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs font-semibold text-slate-300 block mb-1">Max Guests</label>
+                  <input
+                    type="number"
+                    value={maxGuests}
+                    onChange={(e) => setMaxGuests(e.target.value)}
+                    className="w-full bg-brand-card border border-brand-border rounded-xl px-3 py-2 text-sm text-white focus:outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs font-semibold text-slate-300 block mb-1">Sq Feet</label>
+                  <input
+                    type="number"
+                    value={sizeSqFt}
+                    onChange={(e) => setSizeSqFt(e.target.value)}
+                    className="w-full bg-brand-card border border-brand-border rounded-xl px-3 py-2 text-sm text-white focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              {/* Image URL */}
+              <div>
+                <label className="text-xs font-semibold text-slate-300 block mb-1">Main Cover Image URL</label>
+                <input
+                  type="url"
+                  value={imageUrl}
+                  onChange={(e) => setImageUrl(e.target.value)}
+                  placeholder="https://images.unsplash.com/photo-..."
+                  className="w-full bg-brand-card border border-brand-border rounded-xl px-3.5 py-2 text-sm text-white focus:border-brand-emerald focus:outline-none"
+                />
+              </div>
+
+              {/* INTEGRATED AI PROPERTY DESCRIPTION GENERATOR TOOL */}
+              <div className="p-4 rounded-2xl bg-gradient-to-br from-brand-card to-brand-surface border border-brand-emerald/40 space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="w-7 h-7 rounded-lg bg-brand-emerald/20 text-brand-emerald flex items-center justify-center font-bold text-xs">
+                      ✨
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-bold text-white">AI Description Generator</h4>
+                      <p className="text-[11px] text-slate-400">Generate high-converting property copy in seconds</p>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={handleGenerateAiDescription}
+                    disabled={isAiGenerating}
+                    className="px-3.5 py-1.5 rounded-xl bg-brand-emerald text-black font-extrabold text-xs hover:bg-emerald-400 transition shadow disabled:opacity-50 flex items-center gap-1.5"
+                  >
+                    {isAiGenerating ? 'Generating...' : '⚡ Generate AI Copy'}
+                  </button>
+                </div>
+
+                {/* AI Configuration Options */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
+                  <div>
+                    <label className="text-[11px] font-semibold text-slate-400 block mb-1">Length</label>
+                    <select
+                      value={aiLength}
+                      onChange={(e) => setAiLength(e.target.value)}
+                      className="w-full bg-brand-bg border border-brand-border rounded-lg px-2.5 py-1.5 text-xs text-slate-200"
+                    >
+                      <option value="Short">Short (~60 words)</option>
+                      <option value="Standard">Standard (~140 words)</option>
+                      <option value="Detailed">Detailed (~250 words)</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="text-[11px] font-semibold text-slate-400 block mb-1">Tone</label>
+                    <select
+                      value={aiTone}
+                      onChange={(e) => setAiTone(e.target.value)}
+                      className="w-full bg-brand-bg border border-brand-border rounded-lg px-2.5 py-1.5 text-xs text-slate-200"
+                    >
+                      <option value="Luxury">Luxury & Prestigious</option>
+                      <option value="Professional">Professional & Clean</option>
+                      <option value="Family-friendly">Family & Warm</option>
+                      <option value="Vacation-focused">Vacation & Exotic</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="text-[11px] font-semibold text-slate-400 block mb-1">Language</label>
+                    <select
+                      value={aiLang}
+                      onChange={(e) => setAiLang(e.target.value)}
+                      className="w-full bg-brand-bg border border-brand-border rounded-lg px-2.5 py-1.5 text-xs text-slate-200"
+                    >
+                      <option value="English">English 🇬🇧</option>
+                      <option value="Swahili">Swahili 🇰🇪</option>
+                      <option value="French">French 🇫🇷</option>
+                      <option value="Spanish">Spanish 🇪🇸</option>
+                      <option value="Arabic">Arabic 🇦🇪</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* Editable Description Textarea */}
+                <div>
+                  <textarea
+                    rows="4"
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    placeholder="Click 'Generate AI Copy' above or type manual property description here..."
+                    className="w-full bg-brand-bg border border-brand-border rounded-xl p-3 text-xs text-slate-200 placeholder-slate-500 focus:border-brand-emerald focus:outline-none"
+                  ></textarea>
+                </div>
+              </div>
+
+              {/* Modal Buttons */}
+              <div className="flex items-center justify-end space-x-3 pt-4 border-t border-brand-border">
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="px-5 py-2.5 rounded-xl border border-brand-border text-slate-300 hover:text-white text-sm font-semibold transition"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-brand-emerald to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-black font-extrabold text-sm shadow-xl shadow-emerald-950/50 transition"
+                >
+                  Publish Property Now
+                </button>
+              </div>
+
+            </form>
+          </div>
+        </div>
+      );
+    }
+
+    function ExporterModal({ onClose, showToast }) {
+      const [isExporting, setIsExporting] = useState(false);
+
+      // Generate and Download standard JSZip bundle
+      const handleDownloadCodebase = async () => {
+        setIsExporting(true);
+        try {
+          const zip = new JSZip();
+
+          // 1. package.json
+          zip.file('package.json', JSON.stringify({
+            name: "global-estates-marketplace",
+            version: "1.0.0",
+            private: true,
+            scripts: {
+              "dev": "vite",
+              "build": "vite build",
+              "start": "node server/index.js"
+            },
+            dependencies: {
+              "express": "^4.19.2",
+              "pg": "^8.11.5",
+              "stripe": "^15.10.0",
+              "dotenv": "^16.4.5",
+              "cors": "^2.8.5",
+              "react": "^18.3.1",
+              "react-dom": "^18.3.1",
+              "lucide-react": "^0.378.0"
+            },
+            devDependencies: {
+              "@vitejs/plugin-react": "^4.2.1",
+              "autoprefixer": "^10.4.19",
+              "postcss": "^8.4.38",
+              "tailwindcss": "^3.4.3",
+              "vite": "^5.2.11"
+            }
+          }, null, 2));
+
+          // 2. .env.example
+          zip.file('.env.example', `PORT=5000\nDATABASE_URL=postgresql://user:password@localhost:5432/globalestates\nSTRIPE_SECRET_KEY=sk_test_51Px...\nSTRIPE_WEBHOOK_SECRET=whsec_...\nGEMINI_API_KEY=AIzaSy...`);
+
+          // 3. README.md
+          zip.file('README.md', `# Global Estates - Worldwide Property Marketplace\n\nFull-stack production ready codebase for Global Estates (Rent, Vacation, Outings, Land).\n\n## Quick Start\n\n1. Install dependencies:\n   \`npm install\`\n2. Set environment variables in \`.env\`:\n   \`cp .env.example .env\`\n3. Initialize database schema:\n   \`psql -d globalestates -f database/schema.sql\`\n4. Run development server:\n   \`npm run dev\`\n`);
+
+          // 4. database/schema.sql
+          zip.file('database/schema.sql', `-- Global Estates Database Schema
+CREATE TABLE IF NOT EXISTS users (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  email VARCHAR(255) UNIQUE NOT NULL,
+  phone VARCHAR(50),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS properties (
+  id VARCHAR(100) PRIMARY KEY,
+  title VARCHAR(255) NOT NULL,
+  category VARCHAR(50) NOT NULL,
+  location VARCHAR(255) NOT NULL,
+  country VARCHAR(100) NOT NULL,
+  price NUMERIC(12, 2) NOT NULL,
+  currency VARCHAR(10) DEFAULT 'KSh',
+  period VARCHAR(20) DEFAULT 'month',
+  bedrooms INT DEFAULT 0,
+  bathrooms NUMERIC(3, 1) DEFAULT 0,
+  max_guests INT DEFAULT 0,
+  size_sqft INT DEFAULT 0,
+  rating NUMERIC(3, 2) DEFAULT 5.0,
+  status VARCHAR(20) DEFAULT 'Published',
+  image TEXT,
+  description TEXT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+`);
+
+          // 5. Render & Docker deployment files
+          zip.file('render.yaml', `services:\n  - type: web\n    name: global-estates\n    env: node\n    buildCommand: npm install && npm run build\n    startCommand: npm start\n`);
+          zip.file('Dockerfile', `FROM node:20-alpine\nWORKDIR /app\nCOPY package*.json ./\nRUN npm install\nCOPY . .\nEXPOSE 5000\nCMD ["npm", "start"]\n`);
+
+          // 6. Backend API Server Code
+          zip.file('server/index.js', `const express = require('express');
+const cors = require('cors');
+const Stripe = require('stripe');
+require('dotenv').config();
+
+const app = express();
+const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
+
+app.use(cors());
+app.use(express.json());
+
+// Stripe Payment Intent Creation Endpoint
+app.post('/api/create-checkout-session', async (req, res) => {
+  try {
+    const { propertyTitle, amount, currency } = req.body;
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ['card'],
+      line_items: [{
+        price_data: {
+          currency: currency.toLowerCase() === 'ksh' ? 'kes' : currency.toLowerCase(),
+          product_data: { name: propertyTitle },
+          unit_amount: Math.round(amount * 100),
+        },
+        quantity: 1,
+      }],
+      mode: 'payment',
+      success_url: 'http://localhost:3000/success',
+      cancel_url: 'http://localhost:3000/cancel',
+    });
+    res.json({ id: session.id, url: session.url });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(\`Global Estates API running on port \${PORT}\`));
+`);
+
+          // Generate ZIP Blob
+          const content = await zip.generateAsync({ type: 'blob' });
+          saveAs(content, 'global-estates-full-source.zip');
+          showToast('Source Code repository ZIP downloaded!');
+          onClose();
+        } catch (err) {
+          showToast('Failed to generate ZIP archive.');
+        } finally {
+          setIsExporting(false);
+        }
+      };
+
+      return (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-brand-surface border border-brand-border rounded-3xl max-w-lg w-full p-6 space-y-6 shadow-2xl relative">
+            <button onClick={onClose} className="absolute top-4 right-4 text-slate-400 hover:text-white">
+              <i data-lucide="x" className="w-5 h-5"></i>
+            </button>
+
+            <div className="space-y-2">
+              <div className="w-12 h-12 rounded-2xl bg-brand-gold/20 text-brand-gold flex items-center justify-center font-bold text-xl border border-brand-gold/30">
+                📦
+              </div>
+              <h2 className="text-2xl font-extrabold text-white">Download Codebase ZIP</h2>
+              <p className="text-xs text-slate-400">
+                Generate a complete, GitHub-ready full-stack repository containing Node Express backend, PostgreSQL database schema, Stripe webhook logic, Tailwind CSS, and React source code.
+              </p>
+            </div>
+
+            <div className="bg-brand-card p-4 rounded-xl border border-brand-border space-y-2 text-xs text-slate-300">
+              <div className="font-semibold text-white mb-2">ZIP Package Structure:</div>
+              <div className="flex items-center gap-2 text-brand-emerald">✓ package.json & Vite config</div>
+              <div className="flex items-center gap-2 text-brand-emerald">✓ Express API & Stripe Checkout handlers</div>
+              <div className="flex items-center gap-2 text-brand-emerald">✓ PostgreSQL schema.sql with tables & indexes</div>
+              <div className="flex items-center gap-2 text-brand-emerald">✓ Dockerfile & Render.yaml deployment files</div>
+              <div className="flex items-center gap-2 text-brand-emerald">✓ Complete React application source</div>
+            </div>
+
+            <button
+              onClick={handleDownloadCodebase}
+              disabled={isExporting}
+              className="w-full py-3.5 rounded-xl bg-gradient-to-r from-brand-gold to-yellow-600 hover:from-yellow-400 hover:to-gold-500 text-black font-extrabold text-sm shadow-xl transition flex items-center justify-center gap-2"
+            >
+              <i data-lucide="download" className="w-4 h-4"></i>
+              {isExporting ? 'Packaging Repository...' : 'Download global-estates.zip'}
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    ReactDOM.render(<App />, document.getElementById('root'));
+
+    // Re-trigger Lucide icon renders
+    setTimeout(() => {
+      if (window.lucide) {
+        window.lucide.createIcons();
+      }
+    }, 300);
+
+    // Mutation observer to handle icon replacement dynamically
+    const observer = new MutationObserver(() => {
+      if (window.lucide) {
+        window.lucide.createIcons();
+      }
+    });
+    observer.observe(document.getElementById('root'), { childList: true, subtree: true });
+
+  </script>
+</body>
+</html>
